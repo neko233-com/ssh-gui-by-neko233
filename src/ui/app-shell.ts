@@ -17,11 +17,15 @@ import { demoProfiles, type SshProfile } from "../domain/connection";
 import { defaultLocalPanel, defaultRemotePanel, demoTransferQueue } from "../domain/file-transfer";
 import { agentFeatureGroups, xftpFeatureGroups, xshellFeatureGroups } from "../domain/features";
 import { demoTunnels } from "../domain/tunnel";
+import { FakeSftpRuntime, FakeSshRuntime } from "../runtime";
 import { InMemoryProfileStore } from "../services";
 
 type UiWidget = ReturnType<typeof Text>;
 
 const profileStore = new InMemoryProfileStore(demoProfiles);
+const sshRuntime = new FakeSshRuntime();
+const sftpRuntime = new FakeSftpRuntime();
+let activeSessionId = "";
 let selectedProfileId = demoProfiles[0]?.id ?? "";
 let draftHost = demoProfiles[0]?.host ?? "";
 let draftUser = demoProfiles[0]?.username ?? "";
@@ -80,8 +84,15 @@ function createConnectionPanel(): UiWidget {
         }),
         HStack(8, [
             Button("Connect", () => {
-                const secretState = draftPassword.length > 0 ? "with secret" : "without secret";
-                updateStatus(`Prepared connection for ${draftUser}@${draftHost} ${secretState}.`);
+                const profile = profileStore.get(selectedProfileId);
+                if (profile === undefined) {
+                    updateStatus("No selected profile to connect.");
+                    return;
+                }
+                const session = sshRuntime.connect({ profile: { ...profile, host: draftHost, username: draftUser } });
+                activeSessionId = session.id;
+                const secretState = draftPassword.length > 0 ? "secret entered" : "no secret entered";
+                updateStatus(`Connected preview session ${session.id} for ${draftUser}@${draftHost}; ${secretState}.`);
             }),
             Button("Save profile", () => {
                 const profile = profileStore.get(selectedProfileId);
@@ -99,7 +110,10 @@ function createConnectionPanel(): UiWidget {
 
                 updateStatus(`Profile validation failed: ${result.issues[0]?.message ?? "unknown issue"}`);
             }),
-            Button("Open SFTP", () => updateStatus(`Opening SFTP panel for ${selectedProfileName()} is queued for M3.`)),
+            Button("Open SFTP", () => {
+                const entries = sftpRuntime.listDirectory(selectedProfileId, defaultRemotePanel.currentPath);
+                updateStatus(`SFTP preview loaded ${entries.length} entries for ${selectedProfileName()}.`);
+            }),
             Button("Start tunnel", () => updateStatus(`Tunnel service has ${demoTunnels.length} modeled rules.`)),
         ]),
     ]);
@@ -113,7 +127,10 @@ function createTerminalPanel(): UiWidget {
         HStack(8, [
             Button("New tab", () => updateStatus("Terminal tabs are part of the M2 runtime milestone.")),
             Button("Split pane", () => updateStatus("Split panes are part of the M4 advanced terminal milestone.")),
-            Button("Broadcast", () => updateStatus("Command broadcast will require explicit target selection.")),
+            Button("Run uptime", () => {
+                const result = sshRuntime.execute({ profileId: selectedProfileId, command: "uptime", timeoutSeconds: 30 });
+                updateStatus(`Command ${result.status}: ${result.stdout || result.stderr}`);
+            }),
             Button("Log session", () => updateStatus("Session logging will write audit-safe terminal transcripts.")),
         ]),
     ]);
@@ -143,7 +160,11 @@ function createFilePanel(): UiWidget {
         Text(`Queue\n${queueSummary}`),
         HStack(8, [
             Button("Upload", () => updateStatus("SFTP upload queue is modeled; protocol runtime lands in M3.")),
-            Button("Download", () => updateStatus("SFTP download queue is modeled; protocol runtime lands in M3.")),
+            Button("Download", () => {
+                const job = sftpRuntime.queue.enqueue(demoTransferQueue[1]);
+                const running = sftpRuntime.queue.start(job.id);
+                updateStatus(`Transfer ${running?.id ?? job.id} is ${running?.status ?? job.status}.`);
+            }),
             Button("Sync", () => updateStatus("Directory sync planner is part of the Xftp coverage plan.")),
         ]),
     ]);
@@ -165,7 +186,8 @@ function createAgentPanel(): UiWidget {
         HStack(8, [
             Button("Plan", () => {
                 const mode = agentEnabled ? defaultAgentPolicy.mode : "disabled";
-                updateStatus(`Planning for ${selectedProfileName()} with policy ${mode}: ${agentObjective}`);
+                const lines = activeSessionId === "" ? [] : sshRuntime.readBuffer(activeSessionId, 3);
+                updateStatus(`Planning for ${selectedProfileName()} with policy ${mode}; context lines=${lines.length}: ${agentObjective}`);
             }),
             Button("Approve next command", () => updateStatus("Approval workflow is reserved for agent tool execution.")),
             Button("Audit", () => updateStatus("Audit log will record prompts, plans, commands, output, and approvals.")),

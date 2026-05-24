@@ -64,4 +64,6 @@ git push origin v0.1.0
 - In-memory profile store for UI previews and tests.
 - JSON profile store with versioned snapshots and validation.
 - In-memory secret vault that returns `secret://` references without exposing values in metadata lists.
+- SSH runtime contracts plus fake SSH runtime for terminal/session preview and agent context.
+- SFTP runtime contracts plus in-memory transfer queue and fake directory listing runtime.
 - Node test suite covering profile validation, persistence, snapshot import/export, and vault behavior.

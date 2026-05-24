@@ -64,11 +64,23 @@ Current M1 status:
 - PTY allocation, terminal resize, ANSI rendering bridge, reconnect, keepalive.
 - Session logging and host key trust workflow.
 
+Current M2 status:
+
+- SSH runtime interface exists for connect, disconnect, resize, command execution, and terminal buffer reads.
+- Fake SSH runtime exists for UI preview, agent planning context, and deterministic tests.
+- Real protocol implementation remains the next M2 step.
+
 ### M3 - SFTP Runtime
 
 - Remote directory listing, upload/download, queued transfers, cancel/retry.
 - Conflict policy, chmod, mkdir, rename, delete.
 - Directory sync planner.
+
+Current M3 status:
+
+- SFTP runtime interface exists for directory listing and transfer queue access.
+- In-memory transfer queue covers queued, running, paused, completed, failed, canceled, and retry transitions.
+- Fake SFTP runtime provides deterministic remote directory entries for UI preview and tests.
 
 ### M4 - Advanced Xshell/Xftp Features
 
