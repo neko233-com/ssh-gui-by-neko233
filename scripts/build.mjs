@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 const platform = process.platform;
 const arch = process.arch;
 const extension = platform === "win32" ? ".exe" : "";
-const output = `dist/ssh-gui-by-neko233-${platform}-${arch}${extension}`;
+const output = process.env.BUILD_OUTPUT ?? `dist/ssh-gui-by-neko233-${platform}-${arch}${extension}`;
 
 mkdirSync("dist", { recursive: true });
 

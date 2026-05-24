@@ -18,12 +18,15 @@ jobs:
           - os: windows-latest
             artifact: ssh-gui-by-neko233-windows-x64
             path: dist/ssh-gui-by-neko233-win32-x64.exe
+            package: dist/ssh-gui-by-neko233-windows-x64.zip
           - os: ubuntu-latest
             artifact: ssh-gui-by-neko233-linux-x64
             path: dist/ssh-gui-by-neko233-linux-x64
+            package: dist/ssh-gui-by-neko233-linux-x64.tar.gz
           - os: macos-latest
             artifact: ssh-gui-by-neko233-macos-arm64
             path: dist/ssh-gui-by-neko233-darwin-arm64
+            package: dist/ssh-gui-by-neko233-macos-arm64.tar.gz
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -60,17 +63,28 @@ jobs:
 
       - name: Build
         shell: bash
+        env:
+          BUILD_OUTPUT: ${{ matrix.path }}
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
             export PERRY_LLVM_CLANG="C:/Program Files/LLVM/bin/clang.exe"
           fi
           npm run build
 
+      - name: Package artifact
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            powershell -NoProfile -Command "Compress-Archive -Path '${{ matrix.path }}' -DestinationPath '${{ matrix.package }}' -Force"
+          else
+            tar -czf "${{ matrix.package }}" -C dist "$(basename '${{ matrix.path }}')"
+          fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.path }}
+          path: ${{ matrix.package }}
           if-no-files-found: error
 
   publish:

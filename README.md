@@ -47,8 +47,8 @@ See [docs/roadmap.md](docs/roadmap.md) for the implementation phases.
 ## GitHub Actions
 
 - `CI` runs on `main` pushes and pull requests.
-- `CI` runs TypeScript, tests, Perry compatibility checks, and cross-platform builds.
-- `Release` runs on tags matching `v*` and uploads Windows, Linux, and macOS binaries to a GitHub Release.
+- `CI` runs TypeScript, tests, Perry compatibility checks, cross-platform builds, and packaging.
+- `Release` runs on tags matching `v*` and uploads Windows, Linux, and macOS packages to a GitHub Release.
 
 Create a release by pushing a tag:
 
