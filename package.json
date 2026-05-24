@@ -1,0 +1,28 @@
+{
+  "name": "ssh-gui-by-neko233",
+  "version": "1.0.0",
+  "description": "Cross-platform Perry + TypeScript SSH, SFTP, and AI ops desktop client.",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "node --import tsx --test test/*.test.mjs",
+    "check": "tsc --noEmit && npm test && perry check src/main.ts",
+    "build": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && perry compile src/main.ts -o dist/ssh-gui-by-neko233.exe",
+    "dev": "perry dev src/main.ts"
+  },
+  "keywords": [
+    "ssh",
+    "sftp",
+    "desktop",
+    "typescript",
+    "perry",
+    "ai-agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@perryts/perry": "^0.5.1025",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}

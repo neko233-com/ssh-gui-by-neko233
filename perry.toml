@@ -1,0 +1,10 @@
+# Perry configuration
+# https://github.com/PerryTS/perry
+
+[project]
+name = "ssh-gui-by-neko233"
+entry = "src/main.ts"
+
+[build]
+out_dir = "dist"
+opt_level = 2
