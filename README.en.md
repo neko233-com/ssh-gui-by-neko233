@@ -160,7 +160,16 @@ Linux:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y clang build-essential
+sudo apt-get install -y \
+  clang \
+  build-essential \
+  pkg-config \
+  libgtk-4-dev \
+  libshumate-dev \
+  libgstreamer1.0-dev \
+  libgstreamer-plugins-base1.0-dev \
+  libwebkitgtk-6.0-dev \
+  libpulse-dev
 ```
 
 macOS:
