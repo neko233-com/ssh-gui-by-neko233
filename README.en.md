@@ -162,6 +162,7 @@ Linux:
 sudo apt-get update
 sudo apt-get install -y \
   clang \
+  llvm \
   build-essential \
   pkg-config \
   libgtk-4-dev \
