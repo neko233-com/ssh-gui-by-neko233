@@ -19,14 +19,17 @@ jobs:
             artifact: ssh-gui-by-neko233-windows-x64
             path: dist/ssh-gui-by-neko233-win32-x64.exe
             package: dist/ssh-gui-by-neko233-windows-x64.zip
+            binary: true
           - os: ubuntu-latest
             artifact: ssh-gui-by-neko233-linux-x64
-            path: dist/ssh-gui-by-neko233-linux-x64
+            path: dist/linux/README.txt
             package: dist/ssh-gui-by-neko233-linux-x64.tar.gz
+            binary: false
           - os: macos-latest
             artifact: ssh-gui-by-neko233-macos-arm64
             path: dist/ssh-gui-by-neko233-darwin-arm64
             package: dist/ssh-gui-by-neko233-macos-arm64.tar.gz
+            binary: true
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -75,6 +78,7 @@ jobs:
           npm run check
 
       - name: Build
+        if: matrix.binary
         shell: bash
         env:
           BUILD_OUTPUT: ${{ matrix.path }}
@@ -84,13 +88,32 @@ jobs:
           fi
           npm run build
 
+      - name: Prepare Linux package placeholder
+        if: runner.os == 'Linux' && !matrix.binary
+        shell: bash
+        run: |
+          mkdir -p dist/linux
+          cat > dist/linux/README.txt <<'EOF'
+          Linux native GUI binary is temporarily disabled for @perryts/perry-linux-x64 0.5.1025.
+
+          Root cause:
+          libperry_stdlib.a references aws_lc_0_41_0_poly_Rq_mul from hrss.o, but the published Linux Perry static libraries do not define that symbol.
+
+          CI still runs npm run check on Linux. Re-enable Linux native packaging when Perry publishes a fixed Linux package.
+          EOF
+          cp README.md README.en.md package.json package-lock.json perry.toml spec.md dist/linux/
+
       - name: Package artifact
         shell: bash
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
             powershell -NoProfile -Command "Compress-Archive -Path '${{ matrix.path }}' -DestinationPath '${{ matrix.package }}' -Force"
           else
-            tar -czf "${{ matrix.package }}" -C dist "$(basename '${{ matrix.path }}')"
+            if [ "${{ matrix.binary }}" = "true" ]; then
+              tar -czf "${{ matrix.package }}" -C dist "$(basename '${{ matrix.path }}')"
+            else
+              tar -czf "${{ matrix.package }}" -C dist linux
+            fi
           fi
 
       - name: Upload artifact

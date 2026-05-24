@@ -93,6 +93,13 @@ Implemented:
 - GitHub Actions CI and release workflows
 - Verified Windows native Perry build locally
 
+Current Linux packaging note:
+
+- CI still runs `npm run check` on Linux.
+- Linux native GUI binary packaging is temporarily disabled because `@perryts/perry-linux-x64@0.5.1025` ships `libperry_stdlib.a` with an undefined reference to `aws_lc_0_41_0_poly_Rq_mul`.
+- Windows and macOS native GUI binaries are still built and packaged.
+- Re-enable Linux native binary packaging when Perry publishes a fixed Linux package.
+
 Not implemented yet:
 
 - Real SSH protocol connection

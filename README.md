@@ -93,6 +93,13 @@ UI 已经接入 fake SSH/SFTP runtime，所以按钮可以触发预览状态，�
 - GitHub Actions CI 和 release workflow
 - Windows 本地 Perry native build 验证
 
+当前 Linux 打包说明：
+
+- CI 仍会在 Linux 上运行 `npm run check`。
+- Linux native GUI binary 暂时不构建，因为 `@perryts/perry-linux-x64@0.5.1025` 发布包里的 `libperry_stdlib.a` 引用了未定义符号 `aws_lc_0_41_0_poly_Rq_mul`。
+- Windows 和 macOS native GUI binary 仍正常构建并打包。
+- 等 Perry 发布修复后的 Linux 包，再恢复 Linux native binary packaging。
+
 还未完成：
 
 - 真实 SSH 协议连接
