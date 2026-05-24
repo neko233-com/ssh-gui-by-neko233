@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run checks
+        run: npm run check
+
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: ssh-gui-by-neko233-windows-x64
+            path: dist/ssh-gui-by-neko233-win32-x64.exe
+          - os: ubuntu-latest
+            artifact: ssh-gui-by-neko233-linux-x64
+            path: dist/ssh-gui-by-neko233-linux-x64
+          - os: macos-latest
+            artifact: ssh-gui-by-neko233-macos-arm64
+            path: dist/ssh-gui-by-neko233-darwin-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup LLVM on Windows
+        if: runner.os == 'Windows'
+        run: winget install LLVM.LLVM --accept-package-agreements --accept-source-agreements
+
+      - name: Setup LLVM on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang build-essential
+
+      - name: Setup Xcode tools on macOS
+        if: runner.os == 'macOS'
+        run: xcode-select -p
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            export PERRY_LLVM_CLANG="C:/Program Files/LLVM/bin/clang.exe"
+          fi
+          npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.path }}
+          if-no-files-found: error

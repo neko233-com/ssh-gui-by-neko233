@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --import tsx --test test/*.test.mjs",
     "check": "tsc --noEmit && npm test && perry check src/main.ts",
-    "build": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && perry compile src/main.ts -o dist/ssh-gui-by-neko233.exe",
+    "build": "node scripts/build.mjs",
     "dev": "perry dev src/main.ts"
   },
   "keywords": [

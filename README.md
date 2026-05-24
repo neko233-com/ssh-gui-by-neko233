@@ -44,6 +44,19 @@ The target is to cover the practical surface of Xshell and Xftp in one desktop a
 
 See [docs/roadmap.md](docs/roadmap.md) for the implementation phases.
 
+## GitHub Actions
+
+- `CI` runs on `main` pushes and pull requests.
+- `CI` runs TypeScript, tests, Perry compatibility checks, and cross-platform builds.
+- `Release` runs on tags matching `v*` and uploads Windows, Linux, and macOS binaries to a GitHub Release.
+
+Create a release by pushing a tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
 ## Current Implementation
 
 - Perry native UI shell with session, terminal, file transfer, and AI agent panels.

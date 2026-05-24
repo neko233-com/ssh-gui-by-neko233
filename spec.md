@@ -119,4 +119,7 @@ M5 must add AI provider execution, agent planner, approval workflow, remote tool
 - Relevant tests pass for the milestone.
 - Perry compatibility check passes for the entrypoint.
 - Native `npm run build` passes when the host has LLVM clang and platform linker installed.
+- GitHub Actions runs checks on pushes and pull requests.
+- GitHub Actions builds Windows, Linux, and macOS artifacts.
+- GitHub Actions publishes release artifacts when a `v*` tag is pushed.
 - Documentation is updated for commands, limitations, and next milestone.
