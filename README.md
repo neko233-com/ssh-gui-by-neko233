@@ -87,6 +87,7 @@ UI 已经接入 fake SSH/SFTP runtime，所以按钮可以触发预览状态，�
 - Secret vault interface 和内存实现
 - SSH runtime interface 和 fake runtime
 - SFTP runtime interface 和 transfer queue
+- Agent policy evaluator、context redactor、in-memory audit log
 - Perry UI 预览壳
 - Node 测试，当前 22 个测试
 - GitHub Actions CI 和 release workflow

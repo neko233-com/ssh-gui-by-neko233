@@ -56,7 +56,7 @@ export const defaultAgentPolicy: AgentPolicy = {
     requireApprovalForSudo: true,
     requireApprovalForFileWrites: true,
     deniedCommandPatterns: ["rm -rf /", "mkfs", "dd if=", ":(){ :|:& };:"],
-    redactPatterns: ["password=.*", "token=.*", "Authorization: .*"],
+    redactPatterns: ["password=\\S+", "token=\\S+", "Authorization:\\s*\\S+(\\s+\\S+)?"],
 };
 
 export const demoProviders: AiModelProvider[] = [

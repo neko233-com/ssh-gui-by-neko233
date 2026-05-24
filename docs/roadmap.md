@@ -93,3 +93,9 @@ Current M3 status:
 - Approval-gated command tools.
 - Audit log viewer.
 - Scoped automated runbooks.
+
+Current M5 status:
+
+- Agent policy evaluator exists for allow, approval-required, and deny decisions.
+- Context redactor exists for configured sensitive output patterns before model calls.
+- In-memory audit log records run and tool events for later persistence/UI display.

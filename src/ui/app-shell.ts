@@ -12,6 +12,7 @@ import {
     alert,
     setText,
 } from "perry/ui";
+import { InMemoryAgentAuditLog, evaluateToolCall, redactForModel } from "../agent";
 import { defaultAgentPolicy, demoProviders } from "../domain/agent";
 import { demoProfiles, type SshProfile } from "../domain/connection";
 import { defaultLocalPanel, defaultRemotePanel, demoTransferQueue } from "../domain/file-transfer";
@@ -25,6 +26,7 @@ type UiWidget = ReturnType<typeof Text>;
 const profileStore = new InMemoryProfileStore(demoProfiles);
 const sshRuntime = new FakeSshRuntime();
 const sftpRuntime = new FakeSftpRuntime();
+const auditLog = new InMemoryAgentAuditLog();
 let activeSessionId = "";
 let selectedProfileId = demoProfiles[0]?.id ?? "";
 let draftHost = demoProfiles[0]?.host ?? "";
@@ -187,10 +189,22 @@ function createAgentPanel(): UiWidget {
             Button("Plan", () => {
                 const mode = agentEnabled ? defaultAgentPolicy.mode : "disabled";
                 const lines = activeSessionId === "" ? [] : sshRuntime.readBuffer(activeSessionId, 3);
-                updateStatus(`Planning for ${selectedProfileName()} with policy ${mode}; context lines=${lines.length}: ${agentObjective}`);
+                const redacted = redactForModel(lines.map((line) => line.text).join("\n"), defaultAgentPolicy);
+                updateStatus(`Planning for ${selectedProfileName()} with policy ${mode}; context lines=${lines.length}; redactions=${redacted.redactions.length}: ${agentObjective}`);
             }),
-            Button("Approve next command", () => updateStatus("Approval workflow is reserved for agent tool execution.")),
-            Button("Audit", () => updateStatus("Audit log will record prompts, plans, commands, output, and approvals.")),
+            Button("Approve next command", () => {
+                const toolCall = {
+                    id: "preview-tool",
+                    tool: "ssh.exec" as const,
+                    profileId: selectedProfileId,
+                    input: { command: "sudo systemctl restart nginx" },
+                    status: "planned" as const,
+                };
+                const decision = evaluateToolCall(defaultAgentPolicy, toolCall, 0);
+                auditLog.recordTool("preview-run", decision.kind === "deny" ? "tool-denied" : "tool-planned", toolCall, decision.reasons.join(" "));
+                updateStatus(`Agent policy decision: ${decision.kind}; ${decision.reasons[0] ?? "no extra approval needed"}`);
+            }),
+            Button("Audit", () => updateStatus(`Audit records: ${auditLog.list().length}`)),
         ]),
     ]);
 }

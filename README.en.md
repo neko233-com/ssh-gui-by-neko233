@@ -87,6 +87,7 @@ Implemented:
 - Secret vault interface and in-memory implementation
 - SSH runtime interface and fake runtime
 - SFTP runtime interface and transfer queue
+- Agent policy evaluator, context redactor, and in-memory audit log
 - Perry UI preview shell
 - Node test suite with 22 tests
 - GitHub Actions CI and release workflows
